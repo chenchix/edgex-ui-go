@@ -341,7 +341,6 @@ var coreExportModule = {
 					 o["name"] = d.device;
 					 o["type"] = "bar";
 					 o["data"] = new Array(echartOpts.xAxis[0].data.length)
-					 o["data"].push(d.readings[0].value)
 					 echartOpts.series.push(o);
 					 coreExportModule.exportChart.setOption(echartOpts);
 				 } else {
