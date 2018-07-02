@@ -1,0 +1,43 @@
+FROM arm64v8/alpine:3.7 AS builder
+MAINTAINER chencho <smunoz@cavium.com>
+
+ENV GOPATH=/
+ENV PATH=$GOPATH/bin:$PATH
+RUN apk add --no-cache --virtual --update \
+    go \
+    git \
+    make \
+    glide \
+    tzdata \
+    build-base 
+# Set the working directory
+
+WORKDIR $GOPATH/src/github.com/edgexfoundry-holding/edgex-ui-go
+
+# Copy go source files
+COPY . .
+# Build
+RUN glide install && glide update && make
+
+#
+LABEL license='SPDX-License-Identifier: Apache-2.0' \
+      copyright='Copyright (c) 2018: chencho'
+
+EXPOSE 4000
+
+# Environment variables
+ENV APP_DIR=/edgex/edgex-ui-go
+ENV APP=edgex-ui-go
+
+# Set the working directory
+WORKDIR $APP_DIR
+
+# Copy files
+COPY --from=builder /src/github.com/edgexfoundry-holding/edgex-ui-go/cmd/edgex-ui-go/$APP .
+COPY --from=builder /src/github.com/edgexfoundry-holding/edgex-ui-go/bin/edgex-ui-go-launch.sh .
+COPY --from=builder /src/github.com/edgexfoundry-holding/edgex-ui-go/web .
+RUN mkdir -p cmd/edgex-ui-go && mv edgex-ui-go cmd/edgex-ui-go/  && \
+	mkdir -p bin && mv edgex-ui-go-launch.sh bin/ && \
+	mkdir -p web && mv static web && rm -rf app
+
+CMD ["sh","-c","cd bin && ./edgex-ui-go-launch.sh"]
