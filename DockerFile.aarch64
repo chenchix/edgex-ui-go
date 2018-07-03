@@ -20,6 +20,7 @@ COPY . .
 RUN glide install && glide update && make
 
 #
+FROM arm64v8/alpine:3.7 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
       copyright='Copyright (c) 2018: chencho'
 
